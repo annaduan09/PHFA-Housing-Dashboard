@@ -31,4 +31,10 @@ ui <- fluidPage(
       tabsetPanel(type = "tabs",
                   tabPanel("Data Mapper", leafletOutput("leaflet")),
       tabPanel("Statewide Comparisons", plotOutput("plot"),
-               h6(textOutput("caption", container = span)),  width = "100%", height = "100vh")))))
+               h6(textOutput("caption", container = span)))),
+      tabPanel("Data Summary and Download", tableOutput("tab")))
+      )
+    )
+
+
+

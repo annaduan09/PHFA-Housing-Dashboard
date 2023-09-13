@@ -102,4 +102,16 @@ output$plot <- renderPlot({
     coord_flip()
 })
 
+##### summary #####
+output$tab <- renderTable({
+  dat %>%
+    summarize(quartile_1 = quantile(owner_occ_hh_pct_21, probs = 0.25, na.rm = TRUE),
+              mean = mean(owner_occ_hh_pct_21, na.rm = TRUE),
+              median = median(owner_occ_hh_pct_21, na.rm = TRUE),
+              quartile_3 = quantile(owner_occ_hh_pct_21, probs = 0.75, na.rm = TRUE),
+              max = max(owner_occ_hh_pct_21, na.rm = TRUE)) 
+  
+  
+})
+
 }
