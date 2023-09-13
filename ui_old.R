@@ -19,20 +19,20 @@ ui <- fluidPage(
   
   sidebarLayout(
     sidebarPanel(
-      # checkboxGroupInput("dataLayers", "Select Indicator",
-      #                    choices = c(
-      #                      "Rural Counties" = "rural"),
-      #                    selected = character(0))
+      checkboxGroupInput("dataLayers", "Rural counties",
+                         choices = c(
+                           "Show" = "rural"),
+                         selected = character(0))
       )
     ,
     
   mainPanel(
     # Output: Tabset w/ plot, summary, and table ----
     tabsetPanel(type = "tabs",
-                tabPanel("Interactive Map", leafletOutput("leaflet")),
-                tabPanel("Distribution", plotOutput("plot"),
-                         h6(textOutput("caption", container = span))),
-                tabPanel("Summary Statistics", verbatimTextOutput("summary"))),
+                tabPanel("Data Mapper", leafletOutput("leaflet")),
+                tabPanel("Statewide Comparisons", plotOutput("plot"),
+                         h6(textOutput("caption", container = span)), width = "100%", height = "50vh"),
+                tabPanel("Data Summary and Download", tableOutput("summary"))),
 
   )
   )

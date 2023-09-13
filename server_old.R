@@ -11,6 +11,7 @@ library(kableExtra)
 library(jsonlite)
 library(magrittr)
 library(HatchedPolygons)
+library(tidyverse)
 
 
 #### Data processing ####  
@@ -20,6 +21,16 @@ st_as_sf() %>%
   st_make_valid() %>%
   filter(is.na(owner_occ_hh_pct_21) == FALSE) %>%
   dplyr::mutate(NAME = word(NAME, 1))
+
+dat <- dat %>%
+  dplyr::select(NAME) %>%
+  st_centroid() %>%
+  dplyr::mutate(lon = sf::st_coordinates(.)[,1],
+                lat = sf::st_coordinates(.)[,2]) %>%
+  st_drop_geometry() %>%
+  left_join(dat, by = "NAME") %>%
+  st_as_sf()
+  
 
 rural <- hatched.SpatialPolygons(dat %>% filter(rural == 1), density = 13, angle = c(45, 135))
 
@@ -49,15 +60,26 @@ title_dat <- tags$div(
 server <- function(input, output, session) {
   
 ##### summary #####
-  output$summary <- renderPrint({
+  output$tab <- renderTable({
     dat %>%
-      dplyr::select(owner_occ_hh_21, owner_occ_hh_pct_21) %>%
-      st_drop_geometry() %>%
-      rename(owner_households = owner_occ_hh_21,
-             ownership_rate = owner_occ_hh_pct_21) %>%
-   summary() %>%
-   pander(caption = "Home Ownership Rate")
+      summarize(quartile_1 = quantile(owner_occ_hh_pct_21, probs = 0.25, na.rm = TRUE),
+                mean = mean(owner_occ_hh_pct_21, na.rm = TRUE),
+                median = median(owner_occ_hh_pct_21, na.rm = TRUE),
+                quartile_3 = quantile(owner_occ_hh_pct_21, probs = 0.75, na.rm = TRUE),
+                max = max(owner_occ_hh_pct_21, na.rm = TRUE)) 
+    
+    
   })
+  # 
+  # output$summary <- renderPrint({
+  #   dat %>%
+  #     dplyr::select(owner_occ_hh_21, owner_occ_hh_pct_21) %>%
+  #     st_drop_geometry() %>%
+  #     rename(owner_households = owner_occ_hh_21,
+  #            ownership_rate = owner_occ_hh_pct_21) %>%
+  #  summary() %>%
+  #  pander(caption = "Home Ownership Rate")
+  # })
   
 ##### plot #####
   output$plot <- renderPlot({
@@ -92,15 +114,16 @@ server <- function(input, output, session) {
       addPolylines(
         data = rural,
         weight = 1.0) %>%
+      addLabelOnlyMarkers(~lon, ~lat, label =  ~as.character(NAME),
+                          labelOptions = labelOptions(noHide = T, direction = 'middle', textOnly = T),
+                          group = "txt_labels") %>%
       addControl(title_dat, position = "topright") %>%
       addProviderTiles(providers$CartoDB.Positron) %>%
-      addLegend(pal = color_palette, title = "", opacity = 1, values = ~quintiles,
-                position = "bottomright")
+      addLegend(pal = color_palette, title = "Percent", opacity = 1, values = ~quintiles,
+                position = "bottomright") %>%
+      groupOptions("txt_labels", zoomLevels = 7:100)  
   })
   
 ##### caption #####
 output$caption <- renderText({"Data from the American Community Survey 5 year estimates, 2021."})
 }
-
-shinyApp(ui, server)
-
