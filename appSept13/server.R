@@ -94,22 +94,29 @@ output$leaflet <- renderLeaflet({
 
 ##### plot #####
 output$plot <- renderPlot({
-  ggplot(dat, aes(x = reorder(NAME, owner_occ_hh_pct_21), y = owner_occ_hh_pct_21, fill = owner_occ_hh_pct_21)) +
-    geom_bar(color = "transparent", stat = "identity") +
+  dat %>%
+    mutate(reord = as.numeric(owner_occ_hh_pct_21) + as.numeric(rural),
+           ID = fct_reorder(NAME, reord, .desc = F)) %>% 
+  ggplot(aes(x = reorder(ID, rural), y = owner_occ_hh_pct_21, fill = owner_occ_hh_pct_21)) +
+    geom_bar(color = NA, stat = "identity") +
+    geom_label(aes(label=paste(owner_occ_hh_pct_21, "%", sep = '')), hjust=1, colour = "navy", position = "dodge") +
+   #scale_color_manual(values = c("white", "navy")) +
     scale_fill_distiller(palette = "YlGnBu", direction = 1) +
-    labs(title = "Homeownership rate by County", subtitle = "PA Counties, 2021", x = "", y = "Homeownership Rate (%)", fill = "") +
+    labs(title = "Homeownership rate by County", subtitle = "PA Counties, 2021", 
+         x = "", y = "Homeownership Rate (%)", fill = "%", color = "Rural County") +
     theme_minimal() +
+    theme(legend.position = "none") +
+    guides(fill = FALSE) +
     coord_flip()
 })
 
 ##### summary #####
 output$tab <- renderTable({
-  dat %>%
-    summarize(quartile_1 = quantile(owner_occ_hh_pct_21, probs = 0.25, na.rm = TRUE),
-              mean = mean(owner_occ_hh_pct_21, na.rm = TRUE),
-              median = median(owner_occ_hh_pct_21, na.rm = TRUE),
-              quartile_3 = quantile(owner_occ_hh_pct_21, probs = 0.75, na.rm = TRUE),
-              max = max(owner_occ_hh_pct_21, na.rm = TRUE)) 
+    data.frame(quartile_1 = quantile(dat$owner_occ_hh_pct_21, probs = 0.25, na.rm = TRUE),
+              mean = mean(dat$owner_occ_hh_pct_21, na.rm = TRUE),
+              median = median(dat$owner_occ_hh_pct_21, na.rm = TRUE),
+              quartile_3 = quantile(dat$owner_occ_hh_pct_21, probs = 0.75, na.rm = TRUE),
+              max = max(dat$owner_occ_hh_pct_21, na.rm = TRUE)) 
   
   
 })

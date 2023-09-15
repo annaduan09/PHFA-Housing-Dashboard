@@ -5,36 +5,35 @@ library(ggplot2)
 library(sf)
 library(dplyr)
 library(leaflet)
-library(pander)
 library(stringr)
-library(pander)
-library(stringr)
-library(kableExtra)
 library(jsonlite)
 library(magrittr)
-library(HatchedPolygons)
+library(shinythemes)
 
-ui <- fluidPage(
-  titlePanel(title = "Pennsylvania Counties Housing Explorer", windowTitle = "PHFA Housing Dashboard"),
-  
-  sidebarLayout(
-    sidebarPanel(
-      checkboxGroupInput("dataLayers", "Rural counties",
-                         choices = c(
-                           "Show" = "rural"),
-                         selected = character(0))
-    )
-    ,
-    
-    mainPanel(
-      # Output: Tabset w/ plot, summary, and table ----
-      tabsetPanel(type = "tabs",
-                  tabPanel("Data Mapper", leafletOutput("leaflet")),
-      tabPanel("Statewide Comparisons", plotOutput("plot"),
-               h6(textOutput("caption", container = span)))),
-      tabPanel("Data Summary and Download", tableOutput("tab")))
-      )
-    )
+ui <- navbarPage(theme = shinytheme("yeti"),
+                 title = "Pennsylvania Counties Housing Explorer",
+                  # sidebarLayout(
+                     sidebarPanel(width = 2,
+                      selectInput("variable", "Select a variable", choices = c("Homeownership rate (%)" = "owner_occ_hh_pct_21",
+                                                                               "Residents" = "population_2010",
+                                                                               "Median Age" = "median_age_2020",
+                                                                               "Median Family Income" = "medhhinc_2020"), selected = "owner_occ_hh_pct_21"),
+                      checkboxGroupInput("dataLayers", "Rural counties",
+                                         choices = c("Show" = "rural"),
+                                         selected = character(0)),
+                      shiny::p("Use this web app to explore housing trends across Pennsylvania counties."),
+                    ),
+                   # mainPanel(
+                     # tabsetPanel(type = "tabs",
+                                 tabPanel("Data Mapper", leafletOutput("leaflet", height = "800px",
+                                                        width = "1000px")),
+                                 tabPanel("Statewide Comparisons", plotOutput("plot", height = "1000px",
+                                                   width = "800px"),
+                                          h6(textOutput("caption", container = span))),
+                                 tabPanel("Data Summary and Download", tableOutput("tab")))
+                  #    )
+                #    )
+                # )
 
 
 
