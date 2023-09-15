@@ -5,7 +5,6 @@ library(ggplot2)
 library(sf)
 library(dplyr)
 library(leaflet)
-library(pander)
 library(stringr)
 library(kableExtra)
 library(jsonlite)
@@ -79,9 +78,6 @@ output$leaflet <- renderLeaflet({
                   style = list("font-weight" = "normal", padding = "3px 8px"),
                   textsize = "15px",
                   direction = "auto")) %>%
-    addPolylines(
-      data = rural,
-      weight = 1.0) %>%
     addLabelOnlyMarkers(~lon, ~lat, label =  ~as.character(NAME),
                         labelOptions = labelOptions(noHide = T, direction = 'middle', textOnly = T),
                         group = "txt_labels") %>%
@@ -92,6 +88,14 @@ output$leaflet <- renderLeaflet({
     groupOptions("txt_labels", zoomLevels = 8:100)  
 })
 
+
+observeEvent(input$rural, {
+  leafletProxy("leaflet") %>%
+    addPolylines(
+      data = rural,
+      weight = 1.0) 
+    })
+
 ##### plot #####
 output$plot <- renderPlot({
   dat %>%
@@ -99,14 +103,13 @@ output$plot <- renderPlot({
            ID = fct_reorder(NAME, reord, .desc = F)) %>% 
   ggplot(aes(x = reorder(ID, rural), y = owner_occ_hh_pct_21, fill = owner_occ_hh_pct_21)) +
     geom_bar(color = NA, stat = "identity") +
-    geom_label(aes(label=paste(owner_occ_hh_pct_21, "%", sep = '')), hjust=1, colour = "navy", position = "dodge") +
+  # geom_text(aes(label=NAME), colour = "navy") +
+    geom_label(aes(label=paste(owner_occ_hh_pct_21, "%", sep = '')), hjust=0, colour = "navy", alpha = 0.6, fill = "white", position = "dodge") +
    #scale_color_manual(values = c("white", "navy")) +
     scale_fill_distiller(palette = "YlGnBu", direction = 1) +
-    labs(title = "Homeownership rate by County", subtitle = "PA Counties, 2021", 
-         x = "", y = "Homeownership Rate (%)", fill = "%", color = "Rural County") +
+    labs(x = "", y = "Homeownership Rate (%)", fill = "%", color = "Rural County") +
     theme_minimal() +
     theme(legend.position = "none") +
-    guides(fill = FALSE) +
     coord_flip()
 })
 
