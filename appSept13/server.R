@@ -79,7 +79,12 @@ output$leaflet <- renderLeaflet({
                   textsize = "15px",
                   direction = "auto")) %>%
     addLabelOnlyMarkers(~lon, ~lat, label =  ~as.character(NAME),
-                        labelOptions = labelOptions(noHide = T, direction = 'middle', textOnly = T),
+                        labelOptions = labelOptions(noHide = T, direction = 'center', textOnly = T, style = list(
+                          "color" = "gray",
+                          "highlight-color" = "white",
+                          "font-family" = "sans-serif",
+                          "font-weight" = "bold",
+                          "font-size" = "12px")),
                         group = "txt_labels") %>%
     addControl(title_dat, position = "topright") %>%
     addProviderTiles(providers$CartoDB.Positron) %>%
@@ -104,7 +109,7 @@ output$plot <- renderPlot({
   ggplot(aes(x = reorder(ID, rural), y = owner_occ_hh_pct_21, fill = owner_occ_hh_pct_21)) +
     geom_bar(color = NA, stat = "identity") +
   # geom_text(aes(label=NAME), colour = "navy") +
-    geom_label(aes(label=paste(owner_occ_hh_pct_21, "%", sep = '')), hjust=0, colour = "navy", alpha = 0.6, fill = "white", position = "dodge") +
+    geom_text(aes(label=paste(owner_occ_hh_pct_21, "%", sep = '')), hjust=0, colour = "navy", alpha = 0.6,  position = "dodge") +
    #scale_color_manual(values = c("white", "navy")) +
     scale_fill_distiller(palette = "YlGnBu", direction = 1) +
     labs(x = "", y = "Homeownership Rate (%)", fill = "%", color = "Rural County") +
