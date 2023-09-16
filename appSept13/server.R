@@ -31,7 +31,9 @@ dat <- dat %>%
   st_as_sf()
 
 
-rural <- hatched.SpatialPolygons(dat %>% filter(rural == 1), density = 13, angle = c(45, 135))
+rural <- hatched.SpatialPolygons(dat %>% filter(rural == 1), density = 13, angle = c(45, 135)) %>%
+  st_union() %>%
+  st_as_sf()
 
 #### Leaflet formatting ####  
 ##### palette #####
@@ -80,10 +82,9 @@ output$leaflet <- renderLeaflet({
                   direction = "auto")) %>%
     addLabelOnlyMarkers(~lon, ~lat, label =  ~as.character(NAME),
                         labelOptions = labelOptions(noHide = T, direction = 'center', textOnly = T, style = list(
-                          "color" = "gray",
-                          "highlight-color" = "white",
+                          "color" = "DarkSlateBlue",
                           "font-family" = "sans-serif",
-                          "font-weight" = "bold",
+                         # "font-weight" = "bold",
                           "font-size" = "12px")),
                         group = "txt_labels") %>%
     addControl(title_dat, position = "topright") %>%
@@ -93,13 +94,31 @@ output$leaflet <- renderLeaflet({
     groupOptions("txt_labels", zoomLevels = 8:100)  
 })
 
+x = reactiveVal(1)
+observeEvent(input$rural,{
+  x(x()+1) # increment x by 1
+  x <- as.numeric(x())
+  #print(x())
+  print(x() %% 2)
+})
 
 observeEvent(input$rural, {
-  leafletProxy("leaflet") %>%
-    addPolylines(
-      data = rural,
-      weight = 1.0) 
+  if((x() %% 2) == 0) {
+    leafletProxy("leaflet") %>%
+      addPolylines(
+        data = rural,
+        weight = 1.5,
+        layerId  = "rural") 
+  } else {
+    leafletProxy("leaflet") %>%
+      removeShape(layerId  = "rural")
+  }
     })
+
+observe({
+  print(ct)
+})
+
 
 ##### plot #####
 output$plot <- renderPlot({
@@ -112,9 +131,11 @@ output$plot <- renderPlot({
     geom_text(aes(label=paste(owner_occ_hh_pct_21, "%", sep = '')), hjust=0, colour = "navy", alpha = 0.6,  position = "dodge") +
    #scale_color_manual(values = c("white", "navy")) +
     scale_fill_distiller(palette = "YlGnBu", direction = 1) +
-    labs(x = "", y = "Homeownership Rate (%)", fill = "%", color = "Rural County") +
+    labs(x = "Rural Counties                                                                                                        Urban Counties", y = "", fill = "%", color = "Rural County") +
     theme_minimal() +
-    theme(legend.position = "none") +
+    theme(legend.position = "none",
+          text = element_text(size = 16),
+          axis.title.y = element_text(face = "bold")) +
     coord_flip()
 })
 

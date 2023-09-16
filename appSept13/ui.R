@@ -27,12 +27,12 @@ ui <- navbarPage(theme = shinytheme("yeti"),
                   ,
                     mainPanel(
                       tabsetPanel(type = "pills",
-                                 tabPanel(width = 8, "Data Mapper", leafletOutput("leaflet", height = "800px",
+                                 tabPanel(width = 8, title = h4("Data Mapper"), h3("Interactive Map"), leafletOutput("leaflet", height = "800px",
                                                         width = "1000px")),
-                                 tabPanel(width = 8, "Statewide Comparisons", plotOutput("plot", height = "800px",
+                                 tabPanel(width = 8, title = h4("Statewide Comparisons"), h3("Homeownership Across Counties"), plotOutput("plot", height = "1000px",
                                                    width = "800px"),
                                           h6(textOutput("caption", container = span))),
-                                 tabPanel(width = 8, "Data Summary and Download", tableOutput("tab")))
+                                 tabPanel(width = 8, title = h4("Data Summary and Download"), h3("Data Viewer"), tableOutput("tab")))
                       )
                     )
                  )
