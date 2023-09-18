@@ -75,11 +75,12 @@ output$leaflet <- renderLeaflet({
                   dashArray = "",
                   fillOpacity = 0.7,
                   bringToFront = TRUE),
-                label = labs_dat,
-                labelOptions = labelOptions(
-                  style = list("font-weight" = "normal", padding = "3px 8px"),
-                  textsize = "15px",
-                  direction = "auto")) %>%
+                # label = labs_dat,
+                # labelOptions = labelOptions(
+                #   style = list("font-weight" = "normal", padding = "3px 8px"),
+                #   textsize = "15px",
+                #   direction = "auto")
+                ) %>%
     addLabelOnlyMarkers(~lon, ~lat, label =  ~as.character(NAME),
                         labelOptions = labelOptions(noHide = T, direction = 'center', textOnly = T, style = list(
                           "color" = "DarkSlateBlue",
@@ -98,8 +99,6 @@ x = reactiveVal(1)
 observeEvent(input$rural,{
   x(x()+1) # increment x by 1
   x <- as.numeric(x())
-  #print(x())
-  print(x() %% 2)
 })
 
 observeEvent(input$rural, {
@@ -114,10 +113,6 @@ observeEvent(input$rural, {
       removeShape(layerId  = "rural")
   }
     })
-
-observe({
-  print(ct)
-})
 
 
 ##### plot #####
